@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Uzdevumu Izziņas Materiāls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --border: #1e1e2e;
+            --accent1: #7fff6e;
+            --accent2: #ff6eb4;
+            --accent3: #6eb4ff;
+            --text: #e8e8f0;
+            --muted: #6868a0;
+            --code-bg: #0d0d1a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(126,255,110,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(126,255,110,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent1);
+            border: 1px solid var(--accent1);
+            padding: 6px 16px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* TASK CARDS */
+        .task-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+        .task-card:nth-child(1) { animation-delay: 0.1s; }
+        .task-card:nth-child(2) { animation-delay: 0.2s; }
+        .task-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .task-card.t1::before { background: var(--accent1); }
+        .task-card.t2::before { background: var(--accent2); }
+        .task-card.t3::before { background: var(--accent3); }
+
+        .task-header {
+            padding: 28px 32px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .task-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.12;
+            flex-shrink: 0;
+        }
+        .t1 .task-num { color: var(--accent1); }
+        .t2 .task-num { color: var(--accent2); }
+        .t3 .task-num { color: var(--accent3); }
+
+        .task-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+        .task-emoji { font-size: 1.6rem; margin-right: 10px; }
+        .task-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.6; }
+
+        .task-body { padding: 28px 32px; }
+
+        .section { margin-bottom: 28px; }
+
+        .section-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .t1 .section-label { color: var(--accent1); border-color: rgba(126,255,110,0.2); }
+        .t2 .section-label { color: var(--accent2); border-color: rgba(255,110,180,0.2); }
+        .t3 .section-label { color: var(--accent3); border-color: rgba(110,180,255,0.2); }
+
+        .section-text { font-size: 0.95rem; line-height: 1.7; color: #b8b8d0; }
+
+        .diff {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.9;
+        }
+        .diff-del { color: var(--accent2); display: block; }
+        .diff-del::before { content: '− '; opacity: 0.6; }
+        .diff-add { color: var(--accent1); display: block; }
+        .diff-add::before { content: '+ '; opacity: 0.6; }
+        .diff-ctx { color: var(--muted); display: block; }
+        .diff-ctx::before { content: '  '; }
+
+        .answer-box {
+            background: linear-gradient(135deg, rgba(126,255,110,0.06), transparent);
+            border: 1px solid rgba(126,255,110,0.25);
+            padding: 20px 24px;
+        }
+        .answer-box.pink {
+            background: linear-gradient(135deg, rgba(255,110,180,0.06), transparent);
+            border-color: rgba(255,110,180,0.25);
+        }
+        .answer-box.blue {
+            background: linear-gradient(135deg, rgba(110,180,255,0.06), transparent);
+            border-color: rgba(110,180,255,0.25);
+        }
+        .secret-label {
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .answer-value { font-family: 'Space Mono', monospace; font-size: 1.5rem; letter-spacing: 2px; }
+        .answer-box .answer-value { color: var(--accent1); }
+        .answer-box.pink .answer-value { color: var(--accent2); }
+        .answer-box.blue .answer-value { color: var(--accent3); }
+
+        .error-list { display: flex; flex-direction: column; gap: 10px; }
+        .error-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            background: rgba(255,110,180,0.05);
+            border-left: 3px solid var(--accent2);
+            font-size: 0.9rem;
+        }
+        .error-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            background: var(--accent2);
+            color: #000;
+            padding: 2px 8px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── INLINE GATE ── */
+        .inline-gate {
+            border-top: 1px solid var(--border);
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .inline-gate-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .gate-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .gate-row input {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 11px 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            width: 220px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .t1 .gate-row input:focus { border-color: var(--accent1); }
+        .t2 .gate-row input:focus { border-color: var(--accent2); }
+        .t3 .gate-row input:focus { border-color: var(--accent3); }
+
+        .gate-btn {
+            border: none;
+            padding: 11px 28px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .gate-btn:hover { opacity: 0.82; }
+        .t1 .gate-btn { background: var(--accent1); color: #000; }
+        .t2 .gate-btn { background: var(--accent2); color: #000; }
+        .t3 .gate-btn { background: var(--accent3); color: #000; }
+
+        .gate-err {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent2);
+            display: none;
+        }
+        .gate-success {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            display: none;
+        }
+        .t1 .gate-success { color: var(--accent1); }
+        .t2 .gate-success { color: var(--accent2); }
+        .t3 .gate-success { color: var(--accent3); }
+
+        /* Hidden answer content */
+        .answer-content { display: none; }
+        .answer-content.revealed {
+            display: block;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        /* SUMMARY */
+        .summary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 60px;
+            position: relative;
+        }
+        .summary::before {
+            content: '// KOPSAVILKUMS';
+            position: absolute;
+            top: -1px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            padding: 0 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--muted);
+        }
+        .summary h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; }
+        .summary p { color: var(--muted); max-width: 600px; margin: 0 auto 32px; line-height: 1.7; font-size: 0.95rem; }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            text-align: left;
+        }
+        .concept-item { padding: 16px 20px; background: var(--code-bg); border: 1px solid var(--border); }
+        .concept-name { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--accent1); margin-bottom: 6px; }
+        .concept-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+        .final-secret {
+            margin-top: 40px;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(126,255,110,0.06), rgba(255,110,180,0.06), rgba(110,180,255,0.06));
+            border: 1px solid rgba(255,255,255,0.08);
+            display: none;
+        }
+        .final-secret.revealed { display: block; animation: fadeUp 0.5s ease both; }
+        .final-secret-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+        .final-secret-words { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .word-chip {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.6rem;
+            padding: 10px 20px;
+            border: 2px solid;
+            letter-spacing: 2px;
+        }
+        .word-chip.w1 { color: var(--accent1); border-color: var(--accent1); }
+        .word-chip.w2 { color: var(--accent2); border-color: var(--accent2); }
+        .word-chip.w3 { color: var(--accent3); border-color: var(--accent3); }
+        .final-phrase { margin-top: 20px; font-size: 1.1rem; color: #fff; opacity: 0.6; font-style: italic; }
+
+
+        /* ── SETUP GUIDE ── */
+        .setup-guide {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        .setup-guide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+        }
+        .setup-header { padding: 28px 32px 20px; border-bottom: 1px solid var(--border); }
+        .setup-header h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+        .setup-header p { font-size: 0.92rem; color: var(--muted); line-height: 1.6; }
+        .setup-body { padding: 28px 32px; }
+        .steps { display: flex; flex-direction: column; }
+        .step { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .step:last-child { border-bottom: none; padding-bottom: 0; }
+        .step-num { font-family: "Space Mono", monospace; font-size: 0.75rem; font-weight: 700; color: #000; background: var(--accent1); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .step-content { flex: 1; }
+        .step-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+        .step-text { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+        .step-text code { font-family: "Space Mono", monospace; background: var(--code-bg); border: 1px solid var(--border); padding: 1px 6px; font-size: 0.82rem; color: var(--accent1); }
+        .folder-tree { font-family: "Space Mono", monospace; font-size: 0.82rem; background: var(--code-bg); border: 1px solid var(--border); padding: 16px 20px; margin-top: 12px; line-height: 2; color: #b8b8d0; }
+        .folder-tree .dir { color: var(--accent3); }
+        .folder-tree .js-file { color: var(--accent1); }
+        .folder-tree .css-file { color: var(--accent2); }
+        .dl-section { margin-top: 24px; }
+        .dl-section-title { font-family: "Space Mono", monospace; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .dl-tasks { display: flex; flex-direction: column; gap: 10px; }
+        .dl-task-block { border: 1px solid var(--border); overflow: hidden; }
+        .dl-task-label { padding: 10px 16px; font-family: "Space Mono", monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .dl-task-block.dl1 .dl-task-label { background: rgba(126,255,110,0.08); color: var(--accent1); border-color: rgba(126,255,110,0.15); }
+        .dl-task-block.dl2 .dl-task-label { background: rgba(255,110,180,0.08); color: var(--accent2); border-color: rgba(255,110,180,0.15); }
+        .dl-task-block.dl3 .dl-task-label { background: rgba(110,180,255,0.08); color: var(--accent3); border-color: rgba(110,180,255,0.15); }
+        .dl-buttons { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px; background: var(--code-bg); }
+        .dl-btn { font-family: "Space Mono", monospace; font-size: 0.75rem; padding: 7px 14px; border: 1px solid; background: transparent; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+        .dl1 .dl-btn { color: var(--accent1); border-color: rgba(126,255,110,0.35); }
+        .dl1 .dl-btn:hover { background: rgba(126,255,110,0.08); }
+        .dl2 .dl-btn { color: var(--accent2); border-color: rgba(255,110,180,0.35); }
+        .dl2 .dl-btn:hover { background: rgba(255,110,180,0.08); }
+        .dl3 .dl-btn { color: var(--accent3); border-color: rgba(110,180,255,0.35); }
+        .dl3 .dl-btn:hover { background: rgba(110,180,255,0.08); }
+        .dl-btn.css-btn { color: var(--accent2); border-color: rgba(255,110,180,0.35); }
+        .dl-btn.css-btn:hover { background: rgba(255,110,180,0.08); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div class="badge">JavaScript · HTML · Atkļūdošana</div>
+        <h1>Uzdevumu Izziņas<br>Materiāls</h1>
+        <p class="subtitle">Trīs uzdevumu analīze — kas notiek un kādas kļūdas slēpjas "nepareizajos" failos. Ievadi katra uzdevuma slepeno vārdu, lai redzētu atbildi.</p>
+    </header>
+
+
+    <!-- ══════════════════ SETUP GUIDE ══════════════════ -->
+    <div class="setup-guide">
+        <div class="setup-header">
+            <h2>⚙️ Sākšanas instrukcija</h2>
+            <p>Lejupielādē visus failus uzreiz, savieto pareizā mapju struktūrā un atver pārlūkā — viss gatavs!</p>
+        </div>
+        <div class="setup-body">
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Lejupielādē visus failus</div>
+                        <div class="step-text">Nospied pogu — tiks lejupielādēti visi nepieciešamie faili uzreiz.</div>
+                        <div style="margin-top:16px">
+                            <button class="gate-btn t1-btn" onclick="dlAll()" style="font-size:1rem;padding:14px 36px;background:var(--accent1);color:#000;border:none;font-family:Syne,sans-serif;font-weight:800;letter-spacing:2px;cursor:pointer;">
+                                ⬇ LEJUPIELĀDĒT VISUS FAILUS
+                            </button>
+                        </div>
+                        <div style="margin-top:14px;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">
+                            Tiks lejupielādēti: 1uzd_nepareizi.html · 2uzd_nepareizi.html · 3uzd_nepareizi.html · 1uzd_scripts.js · 2uzd_scripts.js · 3uzd_scripts.js · styles.css
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Izveido šādu mapju struktūru</div>
+                        <div class="step-text">Izveido mapi <code>uzdevumi/</code>. Iekšā izveido apakšmapi <code>js/</code>. HTML un CSS failus liec mapē <code>uzdevumi/</code>, JS failus — mapē <code>uzdevumi/js/</code>.</div>
+                        <div class="folder-tree" style="margin-top:12px">
+📁 <span class="dir">uzdevumi/</span><br>
+├── 📄 <span style="color:var(--accent2)">1uzd_nepareizi.html</span><br>
+├── 📄 <span style="color:var(--accent2)">2uzd_nepareizi.html</span><br>
+├── 📄 <span style="color:var(--accent2)">3uzd_nepareizi.html</span><br>
+├── 🎨 <span style="color:var(--accent2)">styles.css</span><br>
+└── 📁 <span class="dir">js/</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── ⚡ <span style="color:var(--accent1)">1uzd_scripts.js</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── ⚡ <span style="color:var(--accent1)">2uzd_scripts.js</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── ⚡ <span style="color:var(--accent1)">3uzd_scripts.js</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Atver uzdevumu pārlūkā</div>
+                        <div class="step-text">
+                            Veic dubultklikšķi uz vajadzīgā <code>_nepareizi.html</code> faila — tas atvērsies pārlūkprogrammā. Mēģini atrast kļūdas un salabo kodu, lai poga darbotos!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Izmanto pārlūka izstrādātāja rīkus</div>
+                        <div class="step-text">
+                            Nospied <code>F12</code> (vai <code>Cmd+Option+I</code> uz Mac), lai atvērtu DevTools. Skatīties <strong>Console</strong> kļūdu ziņojumus — tie palīdzēs atrast, kas nestrādā. Kad kods strādā pareizi, konsolē parādīsies vārds ar emoji!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Lejupielādē failus</div>
+                        <div class="step-text">
+                            Katram uzdevumam ir savas lejupielādes pogas — lejā redzamas trīs grupas. Lejupielādē vēlamā uzdevuma failus (vai visus uzreiz). 3. uzdevumam papildus nepieciešams <code>styles.css</code>.
+                        </div>
+                        <div class="dl-section">
+                            <div class="dl-section-title">📥 Lejupielādēt failus</div>
+                            <div class="dl-tasks">
+
+                                <div class="dl-task-block dl1">
+                                    <div class="dl-task-label">🚀 Uzdevums 1 — Pirmais lidojums</div>
+                                    <div class="dl-buttons">
+                                        <a class="dl-btn" onclick="dlFile('1uzd.html','1uzd.html')">⬇ 1uzd.html</a>
+                                        <a class="dl-btn" onclick="dlFile('1uzd_nepareizi.html','1uzd_nepareizi.html')">⬇ 1uzd_nepareizi.html</a>
+                                        <a class="dl-btn" onclick="dlFile('1uzd_scripts.js','1uzd_scripts.js')">⬇ 1uzd_scripts.js</a>
+                                    </div>
+                                </div>
+
+                                <div class="dl-task-block dl2">
+                                    <div class="dl-task-label">🔮 Uzdevums 2 — Nākotnes prognoze</div>
+                                    <div class="dl-buttons">
+                                        <a class="dl-btn" onclick="dlFile('2uzd.html','2uzd.html')">⬇ 2uzd.html</a>
+                                        <a class="dl-btn" onclick="dlFile('2uzd_nepareizi.html','2uzd_nepareizi.html')">⬇ 2uzd_nepareizi.html</a>
+                                        <a class="dl-btn" onclick="dlFile('2uzd_scripts.js','2uzd_scripts.js')">⬇ 2uzd_scripts.js</a>
+                                    </div>
+                                </div>
+
+                                <div class="dl-task-block dl3">
+                                    <div class="dl-task-label">🌈 Uzdevums 3 — Padari foršu</div>
+                                    <div class="dl-buttons">
+                                        <a class="dl-btn" onclick="dlFile('3uzd.html','3uzd.html')">⬇ 3uzd.html</a>
+                                        <a class="dl-btn" onclick="dlFile('3uzd_nepareizi.html','3uzd_nepareizi.html')">⬇ 3uzd_nepareizi.html</a>
+                                        <a class="dl-btn" onclick="dlFile('3uzd_scripts.js','3uzd_scripts.js')">⬇ 3uzd_scripts.js</a>
+                                        <a class="dl-btn css-btn" onclick="dlFile('styles.css','styles.css')">⬇ styles.css</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Izveido pareizu mapju struktūru</div>
+                        <div class="step-text">
+                            Izveido mapi <code>uzdevumi/</code>. Iekšā izveido apakšmapi <code>js/</code>. HTML failus liec mapē <code>uzdevumi/</code>, bet JS failus — mapē <code>uzdevumi/js/</code>. 3. uzdevuma <code>styles.css</code> liec blakus HTML failiem.
+                        </div>
+                        <div class="folder-tree">
+📁 <span class="dir">uzdevumi/</span><br>
+├── 📄 <span class="file">1uzd.html</span><br>
+├── 📄 <span class="file">1uzd_nepareizi.html</span><br>
+├── 📄 <span class="file">2uzd.html</span><br>
+├── 📄 <span class="file">2uzd_nepareizi.html</span><br>
+├── 📄 <span class="file">3uzd.html</span><br>
+├── 📄 <span class="file">3uzd_nepareizi.html</span><br>
+├── 🎨 <span class="css-file">styles.css</span><br>
+└── 📁 <span class="dir">js/</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── ⚡ <span class="js-file">1uzd_scripts.js</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── ⚡ <span class="js-file">2uzd_scripts.js</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── ⚡ <span class="js-file">3uzd_scripts.js</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Atver uzdevumu pārlūkā</div>
+                        <div class="step-text">
+                            Atrod vajadzīgo HTML failu savā datorā (piemēram, <code>1uzd.html</code> vai <code>1uzd_nepareizi.html</code>) un veic dubultklikšķi — tas atvērsies pārlūkprogrammā. Sāc ar <code>_nepareizi</code> versiju — mēģini atrast kļūdas un salīdzini ar pareizo versiju!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Izmanto pārlūka izstrādātāja rīkus</div>
+                        <div class="step-text">
+                            Nospied <code>F12</code> (vai <code>Cmd+Option+I</code> uz Mac), lai atvērtu DevTools. Skatīties <strong>Console</strong> kļūdu ziņojumus — tie palīdzēs atrast, kas nestrādā. Kad kods strādā pareizi, konsolē parādīsies vārds ar emoji!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════ UZDEVUMS 1 ══════════════════ -->
+    <div class="task-card t1">
+        <div class="task-header">
+            <div class="task-num">01</div>
+            <div>
+                <div class="task-title"><span class="task-emoji">🚀</span>Pirmais lidojums!</div>
+                <div class="task-desc">Raķetes palaišanas simulācija — noklikšķinot pogu, tiek atšifrēts pirmais slepenais vārds</div>
+            </div>
+        </div>
+        <div class="task-body">
+
+            <div class="section">
+                <div class="section-label">Kas notiek</div>
+                <div class="section-text">
+                    Lapa parāda pogu "PALAIŽ RAKETI!". Noklikšķinot, JavaScript no Base64 formāta atšifrē slepenu vārdu un to parāda lapā ar mirgojošu CSS animāciju. Atšifrēšana notiek ar <code style="font-family:monospace;color:var(--accent1)">atob()</code> un <code style="font-family:monospace;color:var(--accent1)">TextDecoder</code>.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-label">Kļūdas nepareizajā failā (1uzd_nepareizi.html)</div>
+                <div class="error-list">
+                    <div class="error-item">
+                        <span class="error-tag">JS KĻŪDA</span>
+                        <div>
+                            <strong>Nepareizs elementa ID</strong><br>
+                            <span style="color:var(--muted)">HTML pogas ID ir <code style="font-family:monospace;color:#fff">launchButton</code>, bet JS meklē <code style="font-family:monospace;color:var(--accent2)">launchBtn</code> — <code>addEventListener</code> tiek izsaukts uz <code>null</code> un kods nobrūk.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">CSS KĻŪDA</span>
+                        <div>
+                            <strong>Trūkst animācija uz #result</strong><br>
+                            <span style="color:var(--muted)">Pareizajā failā <code style="font-family:monospace">#result</code> ir <code>animation: glow 1s infinite</code>. Nepareizajā — šī īpašība iztrūkst, tādēļ mirgošanas efekts nestrādā.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="diff" style="margin-top:16px">
+                    <span class="diff-ctx">var launchBtn = document.getElementById(</span>
+                    <span class="diff-del">'launchBtn'</span>
+                    <span class="diff-add">'launchButton'</span>
+                    <span class="diff-ctx">);</span>
+                </div>
+            </div>
+
+            <div class="answer-content" id="answer1">
+                <div class="section">
+                    <div class="section-label">✅ Pareizā atbilde — 1. vārds</div>
+                    <div class="answer-box">
+                        <div>
+                            <span class="secret-label">Base64 dekodēts vārds</span>
+                            <span class="answer-value">programmēt</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--muted);margin-top:10px;font-family:monospace">
+                        Base64: <code>cHJvZ3JhbW3Ek3Q=</code> → UTF-8 dekodēšana → <strong style="color:var(--accent1)">programmēt</strong>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <div class="inline-gate" id="gate1">
+            <div class="inline-gate-label">🔐 Ievadi 1. uzdevuma slepeno vārdu, lai redzētu atbildi</div>
+            <div class="gate-row">
+                <input type="text" id="input1" placeholder="Slepenais vārds..." autocomplete="off" spellcheck="false">
+                <button class="gate-btn" onclick="checkGate(1)">PĀRBAUDĪT</button>
+            </div>
+            <div class="gate-err" id="err1">❌ Nepareizi! Mēģini vēlreiz.</div>
+            <div class="gate-success" id="ok1">✅ Pareizi! Atbilde atslēgta.</div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ UZDEVUMS 2 ══════════════════ -->
+    <div class="task-card t2">
+        <div class="task-header">
+            <div class="task-num">02</div>
+            <div>
+                <div class="task-title"><span class="task-emoji">🔮</span>Nākotnes prognoze!</div>
+                <div class="task-desc">Ievadot vecumu un nospiežot pogu, tiek parādīts otrais slepenais vārds ar atklāšanas animāciju</div>
+            </div>
+        </div>
+        <div class="task-body">
+
+            <div class="section">
+                <div class="section-label">Kas notiek</div>
+                <div class="section-text">
+                    Lietotājs ievada savu vecumu. Pēc pogas nospiešanas skripts pārbauda, vai lauks nav tukšs, un ar <code style="font-family:monospace;color:var(--accent2)">atob("aXI=")</code> iegūst otro vārdu, to parādot lapā ar <code style="font-family:monospace">reveal</code> animāciju.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-label">Kļūdas nepareizajā failā (2uzd_nepareizi.html)</div>
+                <div class="error-list">
+                    <div class="error-item">
+                        <span class="error-tag">JS KĻŪDA</span>
+                        <div>
+                            <strong>Nepareizs elementa ID</strong><br>
+                            <span style="color:var(--muted)">Mainīgais tiek iestatīts uz <code style="font-family:monospace;color:var(--accent2)">getElementById('checkBtn')</code>, bet HTML elementam ir ID <code style="font-family:monospace;color:#fff">checkButton</code> — atgriež <code>null</code>.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">HTML KĻŪDA</span>
+                        <div>
+                            <strong>Neaizvērts &lt;script&gt; tags</strong><br>
+                            <span style="color:var(--muted)">Pirmajā <code>&lt;script&gt;</code> blokā trūkst aizvēršanas taga — nākamais <code>&lt;script src="..."&gt;</code> tiek uzskatīts par iekšējo kodu, nevis ārēja faila ielādi.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">CSS KĻŪDA</span>
+                        <div>
+                            <strong>Trūkst reveal animācija</strong><br>
+                            <span style="color:var(--muted)">Pareizajā failā ir <code>.reveal</code> klase un <code>@keyframes reveal</code>. Nepareizajā — to nav.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="diff" style="margin-top:16px">
+                    <span class="diff-ctx">var checkButton = document.getElementById(</span>
+                    <span class="diff-del">'checkBtn'</span>
+                    <span class="diff-add">'checkButton'</span>
+                    <span class="diff-ctx">);</span>
+                    <span class="diff-ctx" style="margin-top:8px;display:block">// + aizverošais &lt;/script&gt; ir jāpievieno</span>
+                </div>
+            </div>
+
+            <div class="answer-content" id="answer2">
+                <div class="section">
+                    <div class="section-label">✅ Pareizā atbilde — 2. vārds</div>
+                    <div class="answer-box pink">
+                        <div>
+                            <span class="secret-label">Base64 dekodēts vārds</span>
+                            <span class="answer-value">ir</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--muted);margin-top:10px;font-family:monospace">
+                        Base64: <code>SmEgdHUgYsWrc2kg...</code> → <strong style="color:var(--accent2)">Ja tu būsi foršs programmētājs un slepenais vārdiņš būs (IR)</strong>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <div class="inline-gate" id="gate2">
+            <div class="inline-gate-label">🔐 Ievadi 2. uzdevuma slepeno vārdu, lai redzētu atbildi</div>
+            <div class="gate-row">
+                <input type="text" id="input2" placeholder="Slepenais vārds..." autocomplete="off" spellcheck="false">
+                <button class="gate-btn" onclick="checkGate(2)">PĀRBAUDĪT</button>
+            </div>
+            <div class="gate-err" id="err2">❌ Nepareizi! Mēģini vēlreiz.</div>
+            <div class="gate-success" id="ok2">✅ Pareizi! Atbilde atslēgta.</div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ UZDEVUMS 3 ══════════════════ -->
+    <div class="task-card t3">
+        <div class="task-header">
+            <div class="task-num">03</div>
+            <div>
+                <div class="task-title"><span class="task-emoji">🌈</span>Padari to foršu!</div>
+                <div class="task-desc">Vizuālā efektu lapa — nospiežot pogu, tiek ielādēts trešais slepenais vārds ar varavīksnes animāciju</div>
+            </div>
+        </div>
+        <div class="task-body">
+
+            <div class="section">
+                <div class="section-label">Kas notiek</div>
+                <div class="section-text">
+                    Lapa izmanto ārējo <code style="font-family:monospace;color:var(--accent3)">styles.css</code> failu ar komiksu fontu, gradienta pogu un varavīksnes animāciju. Poga izsauc <code style="font-family:monospace;color:var(--accent3)">handleFunClick()</code> no ārēja JS faila, kas atšifrē trešo vārdu ar <code>TextDecoder</code> un to ievieto <code>#cool</code> elementā.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-label">Kļūdas nepareizajā failā (3uzd_nepareizi.html)</div>
+                <div class="error-list">
+                    <div class="error-item">
+                        <span class="error-tag">HTML KĻŪDA</span>
+                        <div>
+                            <strong>CSS fails ar nepareizu nosaukumu</strong><br>
+                            <span style="color:var(--muted)"><code style="font-family:monospace;color:var(--accent2)">href="style.css"</code> vietā vajag <code style="font-family:monospace;color:#fff">href="styles.css"</code> — trūkst "s", stili netiek ielādēti.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">HTML KĻŪDA</span>
+                        <div>
+                            <strong>Trūkst = zīme atribūtā</strong><br>
+                            <span style="color:var(--muted)"><code style="font-family:monospace;color:var(--accent2)">div id"cool"</code> vietā vajag <code style="font-family:monospace;color:#fff">div id="cool"</code> — elements tiek izveidots bez ID, JS nevar to atrast.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">HTML KĻŪDA</span>
+                        <div>
+                            <strong>Neaizvērts div tags</strong><br>
+                            <span style="color:var(--muted)">Aizvēršanas tagā trūkst /, <code style="font-family:monospace;color:var(--accent2)">&lt;div&gt;</code> vietā jābūt <code style="font-family:monospace;color:#fff">&lt;/div&gt;</code>.</span>
+                        </div>
+                    </div>
+                    <div class="error-item">
+                        <span class="error-tag">JS KĻŪDA</span>
+                        <div>
+                            <strong>Nepareizs elementa ID</strong><br>
+                            <span style="color:var(--muted)">JS meklē <code style="font-family:monospace;color:var(--accent2)">getElementById('funBtn')</code>, bet HTML elementam ID ir <code style="font-family:monospace;color:#fff">funButton</code>.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="diff" style="margin-top:16px">
+                    <span class="diff-del">href="style.css"</span>
+                    <span class="diff-add">href="styles.css"</span>
+                    <span class="diff-ctx" style="margin-top:6px;display:block"></span>
+                    <span class="diff-del">div id"cool">&lt;div&gt;</span>
+                    <span class="diff-add">div id="cool">&lt;/div&gt;</span>
+                    <span class="diff-ctx" style="margin-top:6px;display:block"></span>
+                    <span class="diff-del">getElementById('funBtn')</span>
+                    <span class="diff-add">getElementById('funButton')</span>
+                </div>
+            </div>
+
+            <div class="answer-content" id="answer3">
+                <div class="section">
+                    <div class="section-label">✅ Pareizā atbilde — 3. vārds</div>
+                    <div class="answer-box blue">
+                        <div>
+                            <span class="secret-label">UTF-8 dekodēts vārds (ar speciālu rakstzīmi)</span>
+                            <span class="answer-value">forši</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--muted);margin-top:10px;font-family:monospace">
+                        Base64: <code>Zm9yxaFp</code> → Uint8Array UTF-8 → <strong style="color:var(--accent3)">forši</strong>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <div class="inline-gate" id="gate3">
+            <div class="inline-gate-label">🔐 Ievadi 3. uzdevuma slepeno vārdu, lai redzētu atbildi</div>
+            <div class="gate-row">
+                <input type="text" id="input3" placeholder="Slepenais vārds..." autocomplete="off" spellcheck="false">
+                <button class="gate-btn" onclick="checkGate(3)">PĀRBAUDĪT</button>
+            </div>
+            <div class="gate-err" id="err3">❌ Nepareizi! Mēģini vēlreiz.</div>
+            <div class="gate-success" id="ok3">✅ Pareizi! Atbilde atslēgta.</div>
+        </div>
+    </div>
+
+    <!-- KOPSAVILKUMS -->
+    <div class="summary">
+        <h2>Uzdevumu kopējā jēga</h2>
+        <p>Šie trīs uzdevumi māca atkļūdošanu — vienu no svarīgākajām programmētāja prasmēm. Katrs uzdevums satur tīšas kļūdas, kuras jāatrod un jālabo, lai kods strādātu pareizi.</p>
+
+        <div class="concepts-grid">
+            <div class="concept-item">
+                <div class="concept-name">getElementById()</div>
+                <div class="concept-desc">ID starp HTML un JS jāsakrīt precīzi — lielajiem burtiem ir nozīme</div>
+            </div>
+            <div class="concept-item">
+                <div class="concept-name">Base64 / atob()</div>
+                <div class="concept-desc">Vārdi ir "slēpti" Base64 kodējumā — atob() tos atšifrē</div>
+            </div>
+            <div class="concept-item">
+                <div class="concept-name">TextDecoder</div>
+                <div class="concept-desc">Latviešu speciālzīmes (š, ā, ē) prasa UTF-8 dekodēšanu</div>
+            </div>
+            <div class="concept-item">
+                <div class="concept-name">HTML struktūra</div>
+                <div class="concept-desc">Katrs atvērts tags jāaizver. Atribūtos = zīme ir obligāta.</div>
+            </div>
+            <div class="concept-item">
+                <div class="concept-name">CSS animācijas</div>
+                <div class="concept-desc">@keyframes un animation īpašības rada dzīvīgumu</div>
+            </div>
+            <div class="concept-item">
+                <div class="concept-name">Ārējie faili</div>
+                <div class="concept-desc">Failu nosaukumiem jāsakrīt precīzi — styles.css ≠ style.css</div>
+            </div>
+        </div>
+
+        <div class="final-secret" id="finalSecret">
+            <div class="final-secret-title">🏆 Slēptā frāze — apvienojot visus 3 uzdevumus</div>
+            <div class="final-secret-words">
+                <div class="word-chip w1">programmētājs</div>
+                <div class="word-chip w2">ir</div>
+                <div class="word-chip w3">forši</div>
+            </div>
+            <p class="final-phrase">"Programmētājs ir forši" — tu to atklāji!</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const ANSWERS = {
+        1: ['programmēt', 'programmet'],
+        2: ['ir'],
+        3: ['forši', 'forsi']
+    };
+    const unlocked = { 1: false, 2: false, 3: false };
+
+    function normalize(s) { return s.trim().toLowerCase(); }
+
+    function checkGate(n) {
+        const inp = document.getElementById('input' + n);
+        const val = normalize(inp.value);
+        const err = document.getElementById('err' + n);
+        const ok  = document.getElementById('ok' + n);
+
+        if (ANSWERS[n].includes(val)) {
+            unlocked[n] = true;
+
+            // Reveal the answer block
+            document.getElementById('answer' + n).classList.add('revealed');
+
+            // Collapse gate to just the success message
+            inp.style.display = 'none';
+            inp.closest('.gate-row').querySelector('button').style.display = 'none';
+            err.style.display = 'none';
+            ok.style.display = 'block';
+
+            // If all unlocked, show final secret
+            if (unlocked[1] && unlocked[2] && unlocked[3]) {
+                const fs = document.getElementById('finalSecret');
+                fs.classList.add('revealed');
+                setTimeout(() => fs.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            }
+        } else {
+            err.style.display = 'block';
+            inp.style.borderColor = 'var(--accent2)';
+            setTimeout(() => {
+                inp.style.borderColor = '';
+                err.style.display = 'none';
+            }, 2000);
+        }
+    }
+
+
+
+    const ZIP_B64 = "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";
+
+    function dlAll() {
+        const binary = atob(ZIP_B64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], {type: 'application/zip'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Uzdevumi.zip';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Enter key triggers the focused input's gate
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        [1, 2, 3].forEach(n => {
+            if (document.activeElement === document.getElementById('input' + n)) checkGate(n);
+        });
+    });
+</script>
+</body>
+</html>
